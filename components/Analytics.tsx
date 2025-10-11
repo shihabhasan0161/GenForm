@@ -23,7 +23,7 @@ const Analytics : React.FC<Props> = async ({noOfSubmissions}) => {
     <div>
       <Card className="w-[350px] shadow-md shadow-yellow-600">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="font-bold">Job Application</CardTitle>
+          <CardTitle className="font-bold">Total Submissions</CardTitle>
           <Eye />
         </CardHeader>
         <CardContent>

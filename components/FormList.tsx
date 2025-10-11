@@ -15,6 +15,7 @@ import { Form } from "@/types/form";
 import { deleteForm } from "@/actions/deleteForm";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import FormPublishButton from "./FormPublishButton";
  
 type Props = {
   form: Form;
@@ -51,13 +52,21 @@ const FormList: React.FC<Props> = ({ form }) => {
         </Link>
       </CardContent>
       <CardFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
-        <Button
-          variant="outline"
-          className="w-full sm:w-auto"
-          onClick={() => router.push(`/dashboard/forms/edit/${form.id}`)}
-        >
-          <Edit2 /> Edit
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-2 w-full">
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto flex-1"
+            onClick={() => router.push(`/dashboard/forms/edit/${form.id}`)}
+          >
+            <Edit2 className="w-4 h-4 mr-2" /> Edit
+          </Button>
+          <FormPublishButton 
+            formId={form.id}
+            isPublished={form.published}
+            variant="default"
+            className="w-full sm:w-auto flex-1"
+          />
+        </div>
         <Button
           onClick={() => deleteFormHandler(form.id)}
           variant={"destructive"}
