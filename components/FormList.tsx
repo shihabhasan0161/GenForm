@@ -18,6 +18,16 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import FormPublishButton from "./FormPublishButton";
 import { Input } from "./ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
  
 type Props = {
   form: Form;
@@ -26,6 +36,8 @@ type Props = {
 const FormList: React.FC<Props> = ({ form }) => {
   const router = useRouter();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Parse content if it's a string
   const formContent = typeof form.content === 'string' 
@@ -35,13 +47,19 @@ const FormList: React.FC<Props> = ({ form }) => {
   const [formTitle, setFormTitle] = useState(formContent.formTitle);
   const [isSaving, setIsSaving] = useState(false);
 
-  const deleteFormHandler = async (formUuid:string) => {
-      const data = await deleteForm(formUuid);
+  const deleteFormHandler = async () => {
+      setIsDeleting(true);
+      try {
+        const data = await deleteForm(form.uuid);
 
-      if(data.success){
-        toast.success(data.message);
-      } else {
-        toast.error(data.message);
+        if(data.success){
+          toast.success(data.message);
+          setShowDeleteDialog(false);
+        } else {
+          toast.error(data.message);
+        }
+      } finally {
+        setIsDeleting(false);
       }
   }
 
@@ -161,7 +179,7 @@ const FormList: React.FC<Props> = ({ form }) => {
           />
         </div>
         <Button
-          onClick={() => deleteFormHandler(form.uuid)}
+          onClick={() => setShowDeleteDialog(true)}
           variant={"destructive"}
           className="w-full sm:w-auto"
         >
@@ -169,6 +187,37 @@ const FormList: React.FC<Props> = ({ form }) => {
         </Button>
       </CardFooter>
     </Card>
+
+    {/* Delete Confirmation Dialog */}
+    <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the form{" "}
+            <span className="font-semibold text-red-600 dark:text-red-400">
+              &quot;{formTitle}&quot;
+            </span>{" "}
+            and remove all its data including{" "}
+            <span className="font-semibold">{form.submissions} submission{form.submissions !== 1 ? 's' : ''}</span>{" "}
+            from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              deleteFormHandler();
+            }}
+            disabled={isDeleting}
+            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+          >
+            {isDeleting ? "Deleting..." : "Delete Form"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 );
 };
